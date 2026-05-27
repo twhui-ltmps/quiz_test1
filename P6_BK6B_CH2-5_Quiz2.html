@@ -1,0 +1,388 @@
+P6_BK6B_CH2-5_Quiz2
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P6 Interactive Quiz – 40Q Syllabus Bank</title>
+  <style>
+    :root{
+      --bg: #f4f7ff;
+      --panel: #ffffff;
+      --border: #1e2a78;
+      --accent: #ff3b3b;
+      --accent2: #0bcc59;
+      --accent3: #ffb000;
+      --text: #1c1c1c;
+      --muted: #6b7280;
+      --btn-bg: #e8ecff;
+      --btn-border: #3b5bd6;
+      --pixel-shadow: 0 0 0 2px var(--border), 0 0 0 4px #00000010;
+      --pixel-inset: inset 0 0 0 2px var(--border), inset 0 0 0 4px #00000010;
+    }
+    html, body { height: 100%; margin: 0; font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); }
+    .app { display: flex; flex-direction: column; height: 100vh; }
+    /* Compact Scoreboard */
+    .scoreboard { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 6px; padding: 6px; background: #eaf0ff; border-bottom: 4px solid var(--border); box-shadow: var(--pixel-inset); }
+    .team { background: var(--panel); border: 2px solid var(--border); border-radius: 6px; padding: 4px; box-shadow: var(--pixel-shadow); }
+    .team header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .team h4 { margin: 0; font-size: 12px; line-height:1; }
+    .score-badge { font-size: 12px; font-weight: 800; padding: 2px 6px; border:2px solid var(--border); border-radius:6px; background:#fff; min-width:30px; text-align:center; }
+    .controls { display: grid; grid-template-columns: 1fr; gap: 4px; }
+    .row { display: flex; gap: 4px; justify-content: center; }
+    /* Function keys font size = 15px (all buttons) */
+    button { font-size: 15px; padding: 6px 8px; border: 2px solid var(--btn-border); background: var(--btn-bg); color: var(--text); border-radius: 4px; cursor: pointer; box-shadow: var(--pixel-shadow); }
+    button:hover { filter: brightness(1.08); }
+    .btn-green { background: #dfffea; border-color: #10b981; color: #065f46; }
+    .btn-red { background: #ffe3e3; border-color: #ef4444; color: #7f1d1d; }
+    .btn-gold { background: #fff6da; border-color: #f59e0b; color: #7c2d12; }
+    .btn-blue { background: #e6f0ff; border-color: #3b82f6; color: #1e3a8a; }
+    /* Main content */
+    .main { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; padding: 12px; flex: 1; min-height: 0; }
+    .question-panel { background: var(--panel); border: 3px solid var(--border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; box-shadow: var(--pixel-shadow); }
+    .qp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .badge { font-size: 15px; padding: 4px 8px; border: 2px solid var(--border); border-radius: 6px; background: #fff; box-shadow: var(--pixel-shadow); }
+    .q-num { font-weight: 700; }
+    /* Question/Answer/Hint/Feedback = 20px */
+    .question-text { font-size: 20px; line-height: 1.5; padding: 8px; border: 2px dashed var(--btn-border); border-radius: 8px; background: #fafcff; min-height: 64px; }
+    .underline { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--accent); }
+    /* Answer area */
+    .answer-area { margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; }
+    .answer-input { font-size: 20px; padding: 8px; border: 2px solid var(--btn-border); border-radius: 6px; flex: 0 0 280px; max-width: 100%; }
+    .btn-group { display:flex; gap:6px; flex-wrap:nowrap; }
+    .hint { margin-top: 8px; font-size: 20px; color: #374151; min-height: 20px; }
+    .feedback { margin-top: 6px; font-size: 20px; font-weight: 700; min-height: 22px; }
+    .good { color: #0f766e; }
+    .bad { color: #b91c1c; }
+    .nav { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .spacer { flex: 1; }
+    .settings { display: flex; gap: 8px; align-items: center; font-size: 15px; }
+    .settings input[type=number] { width: 80px; padding: 4px; border: 2px solid var(--btn-border); border-radius: 6px; }
+    .settings label { display: inline-flex; gap: 6px; align-items: center; }
+    /* Lucky Draw */
+    .draw-panel { background: var(--panel); border: 3px solid var(--border); border-radius: 10px; padding: 14px; box-shadow: var(--pixel-shadow); display: flex; flex-direction: column; gap: 8px; }
+    .draw-header h3 { margin: 0; font-size: 20px; }
+    .draw-number { font-size: 28px; font-weight: 900; color: #b45309; text-align: center; padding: 10px; border: 3px dashed #f59e0b; border-radius: 10px; background: #fffdf5; }
+    .draw-rows { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .draw-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+    .called-list { font-size: 15px; max-height: 140px; overflow: auto; border: 2px solid var(--btn-border); border-radius: 6px; padding: 6px; background: #fafcff; }
+    .remaining { font-size: 15px; color: var(--muted); }
+    /* Bottom timer */
+    .timer-bar-wrap { position: fixed; left: 0; right: 0; bottom: 0; height: 40px; background: #e5e7eb; border-top: 4px solid var(--border); box-shadow: 0 -2px 0 #0003; display: flex; align-items: center; }
+    .timer-inner { width: calc(100% - 160px); margin: 0 12px; background: #ffffff; border: 2px solid var(--btn-border); border-radius: 8px; padding: 6px; }
+    .timer-bar { height: 16px; background: #10b981; border: 2px solid #065f46; box-shadow: var(--pixel-shadow); transition: width 0.25s linear; border-radius: 6px; }
+    .time-text { width: 140px; text-align: center; font-weight: 900; font-size: 20px; }
+    @media (max-width: 1100px) {
+      .main { grid-template-columns: 1fr; }
+    }
+    #toggleMeaningBtn { font-size: 14px; padding: 4px 6px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="scoreboard" id="scoreboard"></div>
+  <div class="main">
+    <div class="question-panel">
+      <div class="qp-header">
+        <div class="badge" id="qType">Type</div>
+        <div class="badge"><span class="q-num" id="qIndex">1</span> / <span id="qTotal">40</span></div>
+      </div>
+      <div class="question-text" id="questionText"></div>
+      <div class="hint" id="meaningText"></div>
+      <button id="toggleMeaningBtn" class="btn-blue" style="margin-top:6px; display:none;">Show meaning</button>
+      <div class="answer-area">
+        <input id="answerInput" class="answer-input" type="text" placeholder="Type answer here..." />
+        <div class="btn-group">
+          <button class="btn-blue" id="checkBtn">Check</button>
+          <button class="btn-gold" id="hintBtn">Hint</button>
+          <button class="btn-blue" id="revealBtn">Reveal</button>
+          <button class="btn-red" id="resetAnsBtn">Reset</button>
+        </div>
+        <div class="btn-group" id="audioBtns" style="display:none;">
+          <button class="btn-gold" id="replayWordBtn" title="Hear Word">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" style="vertical-align:middle; margin-right:6px;">
+              <path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3zm13.5 2a3.5 3.5 0 0 0-2.1-3.2v6.4A3.5 3.5 0 0 0 16.5 12zm-2.1-7.8v2.1a6 6 0 0 1 0 11.3v2.1a8.1 8.1 0 0 0 0-15.5z"/>
+            </svg>
+            🔊 Hear Word
+          </button>
+        </div>
+      </div>
+      <div class="hint" id="hintText"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nav">
+        <button id="prevBtn">◀ Prev</button>
+        <button id="nextBtn">Next ▶</button>
+        <div class="spacer"></div>
+        <button class="btn-blue" id="randomBtn">Randomise order</button>
+        <div class="settings">
+          <label>Time (sec): <input id="timeInput" type="number" min="5" max="600" value="45" /></label>
+          <label><input id="autoAdvance" type="checkbox" /> Auto-advance on timeout</label>
+          <button class="btn-gold" id="restartTimerBtn">Restart timer</button>
+        </div>
+      </div>
+    </div>
+    <div class="draw-panel">
+      <div class="draw-header"><h3>Lucky Draw (1–40)</h3></div>
+      <div class="draw-rows">
+        <label class="badge">Class size: <input id="classSize" type="number" min="1" max="40" value="40" style="width:70px; margin-left:6px;"/></label>
+        <div class="remaining" id="remaining"></div>
+      </div>
+      <div class="draw-number" id="drawNumber">—</div>
+      <div class="draw-controls">
+        <button class="btn-gold" id="drawBtn">Draw next</button>
+        <button class="btn-red" id="resetPoolBtn">Reset pool</button>
+      </div>
+      <div class="called-list" id="calledList"></div>
+    </div>
+  </div>
+  <div class="timer-bar-wrap">
+    <div class="timer-inner">
+      <div class="timer-bar" id="timerBar" style="width: 100%"></div>
+    </div>
+    <div class="time-text" id="timeText"><strong>00</strong> s</div>
+  </div>
+</div>
+<script>
+// ====== QUESTIONS (40Q SYLLABUS BANK) ======
+const QUESTIONS = [
+  // A. Vocabulary
+  {"type":"Vocabulary","prompt":"People use a lot of ______ products which are very bad for the environment.","answer":"disposable","accepted":["disposable"],"meaning":"Meaning: items intended to be thrown away after use"},
+  {"type":"Vocabulary","prompt":"You can support animal charities and be a ______ in your free time.","answer":"volunteer","accepted":["volunteer"],"meaning":"Meaning: a person who does work without being paid"},
+  {"type":"Vocabulary","prompt":"Britain has famous man-made landmarks like a huge ______ for sports.","answer":"stadium","accepted":["stadium"],"meaning":"Meaning: a large structure for open-air sports or entertainments"},
+  {"type":"Vocabulary","prompt":"Star tortoises will become ______ unless we stop keeping them as pets.","answer":"extinct","accepted":["extinct"],"meaning":"Meaning: having no living members; completely died out"},
+  {"type":"Vocabulary","prompt":"Egypt is famous for the desert and the ______ .","answer":"pyramid","accepted":["pyramid"],"meaning":"Meaning: a huge stone building with a square base and four triangular sides"},
+  {"type":"Vocabulary","prompt":"We should support animal ______ by donating money.","answer":"charities","accepted":["charities"],"meaning":"Meaning: organizations set up to provide help and raise money for those in need"},
+  {"type":"Vocabulary","prompt":"Leaving the car engine on causes a lot of air ______ .","answer":"pollution","accepted":["pollution"],"meaning":"Meaning: harmful materials added to the environment"},
+  {"type":"Vocabulary","prompt":"Helping to recycle glass and paper is a very ______ experience.","answer":"meaningful","accepted":["meaningful"],"meaning":"Meaning: having a serious, important, or useful quality"},
+
+  // B. Tenses
+  {"type":"Tenses","prompt":"Look! The migratory birds ____ (fly) south for the winter <b>right now</b>.","answer":"are flying","accepted":["are flying"]},
+  {"type":"Tenses","prompt":"The new school eco-garden ____ (build) by the volunteers <b>last year</b>.","answer":"was built","accepted":["was built"]},
+  {"type":"Tenses","prompt":"She ____ (already / finish) her recycling project <b>so far</b>.","answer":"has already finished","accepted":["has already finished"]},
+  {"type":"Tenses","prompt":"<b>While</b> they ____ (hike) in the country park, it suddenly started to rain heavily.","answer":"were hiking","accepted":["were hiking"]},
+  {"type":"Tenses","prompt":"Millions of plastic bags ____ (throw) away by shoppers <b>every day</b>.","answer":"are thrown","accepted":["are thrown"]},
+  {"type":"Tenses","prompt":"He ____ (drop) his reusable water bottle <b>when</b> he was running to catch the MTR.","answer":"dropped","accepted":["dropped"]},
+  {"type":"Tenses","prompt":"Miss Lee ____ (teach) us English grammar <b>since</b> 2022.","answer":"has taught","accepted":["has taught"]},
+  {"type":"Tenses","prompt":"If we do not reduce waste, our environment ____ (become) much worse <b>in the future</b>.","answer":"will become","accepted":["will become"]},
+
+  // C. Prepositions
+  {"type":"Prepositions","prompt":"Japan is famous ___ its cuisine such as sashimi and sushi.","answer":"for","accepted":["for"]},
+  {"type":"Prepositions","prompt":"I am very proud ___ myself for getting a gold medal.","answer":"of","accepted":["of"]},
+  {"type":"Prepositions","prompt":"The boy is ashamed ___ his bad behaviour in the classroom.","answer":"of","accepted":["of"]},
+  {"type":"Prepositions","prompt":"She is very excited ___ her upcoming trip to Australia.","answer":"about","accepted":["about"]},
+  {"type":"Prepositions","prompt":"The teacher was disappointed ___ the students' poor test results.","answer":"with","accepted":["with"]},
+  {"type":"Prepositions","prompt":"Are you scared ___ the fierce dogs in the village?","answer":"of","of":["of"]},
+  {"type":"Prepositions","prompt":"He was upset ___ losing his new water bottle.","answer":"about","accepted":["about"]},
+  {"type":"Prepositions","prompt":"We are pleased ___ the wonderful performance at the stadium.","answer":"with","accepted":["with"]},
+
+  // D. Proofreading
+  {"type":"Proofreading","prompt":"People dump <u>so many</u> food waste every day.","answer":"much","accepted":["much"]},
+  {"type":"Proofreading","prompt":"To reduce waste, we should stop <u>throw</u> away plastic bottles.","answer":"throwing","accepted":["throwing"]},
+  {"type":"Proofreading","prompt":"<u>Get</u> a gold medal was a wonderful experience.","answer":"getting","accepted":["getting"]},
+  {"type":"Proofreading","prompt":"She was so proud of <u>herselfs</u>.","answer":"herself","accepted":["herself"]},
+  {"type":"Proofreading","prompt":"He was upset about <u>him</u> because he made a silly mistake.","answer":"himself","accepted":["himself"]},
+  {"type":"Proofreading","prompt":"People dump <u>so much</u> disposable products.","answer":"many","accepted":["many"]},
+  {"type":"Proofreading","prompt":"Star tortoises will become extinct <u>if</u> we stop keeping them as pets.","answer":"unless","accepted":["unless"]},
+  {"type":"Proofreading","prompt":"Japan is famous <u>with</u> its beautiful hot springs.","answer":"for","accepted":["for"]},
+
+  // E. Verb Table
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>write</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"writing wrote written","accepted":["writing wrote written"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>swim</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"swimming swam swum","accepted":["swimming swam swum"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>fly</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"flying flew flown","accepted":["flying flew flown"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>speak</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"speaking spoke spoken","accepted":["speaking spoke spoken"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>run</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"running ran run","accepted":["running ran run"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>begin</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"beginning began begun","accepted":["beginning began begun"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>buy</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"buying bought bought","accepted":["buying bought bought"]},
+  {"type":"Verb Table","prompt":"Give the three forms for: <b>go</b> <br><small>(Answer: present participle / simple past / past participle)</small>","answer":"going went gone","accepted":["going went gone"]}
+];
+
+// ====== State ======
+let order = [...Array(QUESTIONS.length).keys()];
+let current = 0;
+let hintRevealed = 0;
+let timerTotal = 45;
+let timeLeft = timerTotal;
+let timerId = null;
+let ticking = false;
+const scores = new Array(8).fill(0);
+let classSize = 40;
+let pool = [];
+let called = [];
+
+// Audio (Beep)
+let audioCtx = null;
+function initAudio(){ if (!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } } }
+function beep(duration=0.08, frequency=1000){ if (!audioCtx) return; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='square'; o.frequency.value=frequency; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.08, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime+duration); o.start(); o.stop(audioCtx.currentTime+duration); }
+
+// Speech synthesis for Part A
+let lastSpokenWord = '';
+let preferredVoice = null;
+function pickVoice() {
+  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  if (voices.length === 0) return null;
+  const uk = voices.find(v => /en-GB/i.test(v.lang) || /UK English/i.test(v.name));
+  return uk || voices.find(v => /^en[-_]/i.test(v.lang)) || voices[0];
+}
+function speakWord(word){
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(word);
+  if (!preferredVoice) preferredVoice = pickVoice();
+  if (preferredVoice) utter.voice = preferredVoice;
+  utter.rate = 0.85;
+  lastSpokenWord = word;
+  setTimeout(() => window.speechSynthesis.speak(utter), 50);
+}
+function replayWord(){ if (lastSpokenWord) speakWord(lastSpokenWord); }
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { preferredVoice = pickVoice(); };
+}
+
+// Helpers
+function normalise(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' ').replace(/[‑‐‒–—]/g,'-'); }
+function shuffle(arr){ for (let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+
+// Scoreboard
+function renderScoreboard(){
+  const sb = document.getElementById('scoreboard');
+  sb.innerHTML='';
+  for (let i=0;i<8;i++){
+    const div = document.createElement('div');
+    div.className = 'team';
+    div.innerHTML = `
+      <header>
+        <h4>Group ${i+1}</h4>
+        <div class="score-badge" id="score-${i}">${scores[i]}</div>
+      </header>
+      <div class="controls">
+        <div class="row">
+          <button class="btn-green" data-delta="1" data-team="${i}">+1</button>
+          <button class="btn-green" data-delta="2" data-team="${i}">+2</button>
+        </div>
+        <div class="row">
+          <button class="btn-red" data-delta="-1" data-team="${i}">-1</button>
+          <button class="btn-red" data-delta="-2" data-team="${i}">-2</button>
+        </div>
+      </div>`;
+    sb.appendChild(div);
+  }
+  sb.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const team = parseInt(btn.getAttribute('data-team'));
+    const delta = parseInt(btn.getAttribute('data-delta'));
+    if (!isNaN(team) && !isNaN(delta)){
+      scores[team]+=delta;
+      document.getElementById(`score-${team}`).textContent = scores[team];
+    }
+  });
+}
+
+let toggleMeaningBtn = null;
+let meaningEl = null;
+
+// Render Question
+function renderQuestion(){
+  const q = QUESTIONS[ order[current] ];
+  document.getElementById('qType').textContent = q.type;
+  document.getElementById('qIndex').textContent = (current+1);
+  document.getElementById('qTotal').textContent = QUESTIONS.length;
+  document.getElementById('questionText').innerHTML = q.prompt;
+  document.getElementById('answerInput').value = '';
+  document.getElementById('feedback').textContent='';
+  hintRevealed = 0;
+  document.getElementById('hintText').textContent = '';
+  
+  if (q.type === 'Vocabulary' && q.meaning){
+    meaningEl.textContent = q.meaning; 
+    meaningEl.style.display = 'none';
+    toggleMeaningBtn.style.display = 'inline-block';
+    toggleMeaningBtn.textContent = 'Show meaning';
+  } else {
+    meaningEl.textContent = '';
+    meaningEl.style.display = 'none';
+    toggleMeaningBtn.style.display = 'none';
+  }
+  
+  restartTimer();
+  
+  const audioBtns = document.getElementById('audioBtns');
+  if (q.type === 'Vocabulary') {
+    audioBtns.style.display = 'flex';
+    document.getElementById('replayWordBtn').onclick = () => replayWord();
+    // Autoplay removed: We only queue up the answer text silently here
+    lastSpokenWord = q.answer; 
+  } else {
+    audioBtns.style.display = 'none';
+    lastSpokenWord = '';
+  }
+}
+
+function checkAnswer(){
+  const q = QUESTIONS[ order[current] ];
+  const user = normalise(document.getElementById('answerInput').value);
+  const accepted = (q.accepted || [q.answer]).map(a => normalise(a));
+  const ok = accepted.includes(user);
+  const fb = document.getElementById('feedback');
+  if (ok){ fb.textContent='Correct!'; fb.className='feedback good'; } else { fb.textContent='Try again!'; fb.className='feedback bad'; }
+  return ok;
+}
+
+function reveal(){ const q=QUESTIONS[ order[current] ]; document.getElementById('answerInput').value=q.answer; document.getElementById('hintText').textContent=q.answer; }
+function hint(){ const q=QUESTIONS[ order[current] ]; hintRevealed = Math.min(hintRevealed+1, q.answer.replace(/\s/g,'').length); let count=0, out=''; for (let ch of q.answer){ if (ch===' '){ out+=' '; continue; } if (count<hintRevealed){ out+=ch; count++; } else { out+='_'; } } document.getElementById('hintText').textContent = out; }
+function go(d){ current = (current + d + order.length) % order.length; renderQuestion(); }
+function randomiseOrder(){ order = [...Array(QUESTIONS.length).keys()]; shuffle(order); current=0; renderQuestion(); }
+
+// Timer Logic
+function restartTimer(){
+  timerTotal = parseInt(document.getElementById('timeInput').value) || 45;
+  timeLeft = timerTotal;
+  updateTimerUI();
+  if (timerId) clearInterval(timerId);
+  ticking=false;
+  timerId = setInterval(()=>{
+    timeLeft--;
+    if (timeLeft <= 10 && !ticking){ ticking=true; initAudio(); }
+    if (timeLeft <= 10 && timeLeft > 0){ beep(0.05, 900); }
+    if (timeLeft < 0){ clearInterval(timerId); timerId=null; timeLeft=0; updateTimerUI(); if (document.getElementById('autoAdvance').checked){ go(1); } return; }
+    updateTimerUI();
+  },1000);
+}
+
+function updateTimerUI(){ const bar=document.getElementById('timerBar'); const txt=document.getElementById('timeText'); const pct=Math.max(0, Math.min(1, timeLeft/timerTotal)); bar.style.width=(pct*100).toFixed(1)+'%'; if (timeLeft<=10){ bar.style.background='#ef4444'; bar.style.borderColor='#7f1d1d'; } else { bar.style.background='#10b981'; bar.style.borderColor='#065f46'; } txt.innerHTML = `<strong>${String(Math.max(0,timeLeft)).padStart(2,'0')}</strong> s`; }
+
+// Lucky Draw
+function resetPool(){ const inp=document.getElementById('classSize'); classSize=Math.max(1, Math.min(40, parseInt(inp.value) || 40)); pool=Array.from({length:classSize},(_,i)=>i+1); called=[]; document.getElementById('drawNumber').textContent='—'; renderCalled(); }
+function renderCalled(){ const rem=pool.length; document.getElementById('remaining').textContent=`Remaining: ${rem}`; const listDiv=document.getElementById('calledList'); if (called.length===0){ listDiv.innerHTML='<em>No numbers called yet.</em>'; return; } const newest=called[called.length-1]; const others=called.slice(0,-1); listDiv.innerHTML = `<span style="font-weight:900; color:#b45309;">${newest}</span>` + (others.length? ', ' + others.join(', ') : ''); }
+function drawNext(){ if (pool.length===0){ renderCalled(); return; } const idx=Math.floor(Math.random()*pool.length); const num=pool.splice(idx,1)[0]; called.push(num); document.getElementById('drawNumber').textContent=num; renderCalled(); }
+
+// Initialize
+function init(){
+  renderScoreboard();
+  document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+  document.getElementById('hintBtn').addEventListener('click', hint);
+  document.getElementById('revealBtn').addEventListener('click', reveal);
+  document.getElementById('resetAnsBtn').addEventListener('click', ()=>{ document.getElementById('answerInput').value=''; document.getElementById('feedback').textContent=''; hintRevealed=0; document.getElementById('hintText').textContent=''; });
+  document.getElementById('prevBtn').addEventListener('click', ()=>go(-1));
+  document.getElementById('nextBtn').addEventListener('click', ()=>go(1));
+  document.getElementById('randomBtn').addEventListener('click', randomiseOrder);
+  document.getElementById('restartTimerBtn').addEventListener('click', restartTimer);
+  document.getElementById('classSize').addEventListener('change', resetPool);
+  document.getElementById('drawBtn').addEventListener('click', drawNext);
+  document.getElementById('resetPoolBtn').addEventListener('click', resetPool);
+  
+  toggleMeaningBtn = document.getElementById('toggleMeaningBtn');
+  meaningEl = document.getElementById('meaningText');
+  toggleMeaningBtn.addEventListener('click', () => {
+    const isHidden = meaningEl.style.display === 'none';
+    meaningEl.style.display = isHidden ? 'block' : 'none';
+    toggleMeaningBtn.textContent = isHidden ? 'Hide meaning' : 'Show meaning';
+  });
+  
+  resetPool();
+  renderQuestion();
+}
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
